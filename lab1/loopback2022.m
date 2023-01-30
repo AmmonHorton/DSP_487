@@ -23,24 +23,22 @@ try % VERY IMPORTANT
     'BufferSize', FrameSize, ...
     'BitDepth', '24-bit integer');
 
-
-
     % Create the FIR coefficients
     Fc = 3000;
     bw = 2000;
     bpfir = fir_bandpass(Fs,Fc,bw,firLen);
 
-
     % This records the first set of data
     disp('Starting processing');
     input_data = step(ar); % This gets the first block of data from the sound card.
+    [y,zf] = filter(bpfir,1,input_data); % Filter the first block
     loop_count = 0;
-    while loop_count <= 20
+    while loop_count <= 40
         loop_count = loop_count + 1;
         
         %%%%%% Put your dsp code or function call here! %%%%%%%%%%%%%%%%%%%%
-        y_data = input_data;
-        
+        [y_data,zf] = filter(bpfir,1,input_data,zf);
+
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         step(ap, y_data);

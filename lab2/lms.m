@@ -14,8 +14,9 @@ function [y, e, h] = lms(x, d, mu, h_init)
         % taps & summation
         slc = x(i:i+length(h_init)-1).';
         slcud = flipud(slc.').';
-        
         y(i) = slcud * h.';
+
+        % Compute the error, and find new fir coefficients
         e(i) = d(i+flen-1) - y(i);
         h = h+(slcud*e(i)*mu);
     end

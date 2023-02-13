@@ -3,7 +3,6 @@ function fir = fir_bandpass(Fs,Fc,bw,len)
     N = floor(len/4);
     n = (-N:N);
 
-    %n = n - floor(N/2)
     lpcoef = 2 * (Fc+bw);
     hpcoef = 2 * (Fc-bw);
     lpcoef = lpcoef / Fs;

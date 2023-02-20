@@ -43,6 +43,7 @@ h_init = zeros(1,length(h_true));
 
 % Filter the input
 [z_filtered,e,h] = lms(eta2,z2,mu,h_init);
+[z_filtered,e,h] = lms(eta2,z2,mu,h);
 
 % Get the frequency Repsonse for our adaptive filter
 [H_true, W] = freqz(h_true2);
@@ -66,7 +67,7 @@ plot(t,e);
 % sound(z, 8000);
 % sound(z2, 8000);
 
-sound(e(floor(length(e)/2)), 8000);
+sound(5*e, 8000);
 
 
 %% Expirement 4

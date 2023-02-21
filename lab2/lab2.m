@@ -7,11 +7,12 @@ load("sysIDdata.mat");
 
 
 % Filter the data using the lms filter
-mu = 0.000056;
+mu = 0.00056;
 h_init = zeros(1,length(h_true));
 
 % Filter the input
 [filtered,e,h] = lms(p,z,mu,h_init);
+% [filtered,e,h] = lms(p,z,mu,h);
 
 % Get the frequency Repsonse for our adaptive filter
 [H_true, W] = freqz(h_true);
@@ -23,6 +24,9 @@ hold on;
 plot(W,abs(H_true));
 plot(W,abs(H));
 legend("H true", "H")
+title("Filter frequency response")
+xlabel("Radians/sample")
+ylabel("Magnitude")
 hold off;
 
 
@@ -30,30 +34,47 @@ hold off;
 figure();
 t = (1:length(e));
 plot(t,e);
+title("Error over time")
+xlabel("Sample")
+ylabel("Error")
+
+% plot h and h_true on same graph
+figure();
+hold on;
+plot(h);
+plot(h_true);
+legend("h", "h true");
+title("h vs h true")
+xlabel("Radians/sample")
+ylabel("Magnitude")
+hold off
 
 
-%% Expirement 3
+%% Experiment 3
 clc, clear, close all
 % Load the variable into the workspace
 load("noiseCancelData.mat");
 
 % Filter the data using the lms filter
-mu = 0.00001;
+mu = 0.001;
 h_init = zeros(1,length(h_true));
 
 % Filter the input
-[z_filtered,e,h] = lms(eta2,z2,mu,h_init);
+[z_filtered,e,h] = lms(eta,z,mu,h_init);
 
-% Get the frequency Repsonse for our adaptive filter
-[H_true, W] = freqz(h_true2);
+% Get the frequency response for our adaptive filter
+[H_true, W] = freqz(h_true);
 [H, W] = freqz(h);
 
 % Plot both responses
 figure();
 hold on;
 plot(W,abs(H_true));
-% plot(W,abs(H));
+plot(W,abs(H));
 legend("H true", "H")
+title("Filter frequency response")
+xlabel("Radians/sample")
+ylabel("Magnitude")
 hold off;
 
 
@@ -61,6 +82,9 @@ hold off;
 figure();
 t = (1:length(e));
 plot(t,e);
+title("Error over time of eta")
+xlabel("Sample")
+ylabel("Error")
 
 % sound(eta, 8000);
 % sound(z, 8000);
@@ -69,15 +93,15 @@ plot(t,e);
 sound(e(floor(length(e)/2)), 8000);
 
 
-%% Expirement 4
+%% Experiment 4
 clc, clear, close all
 % Load the variable into the workspace
 load("EqualizerData.mat");
 
 % Filter the data using the lms filter
 gfirLen = 71;
-myfirLen = 80;
-mu = 0.00026;
+myfirLen = 91;
+mu = 0.016;
 h_init = zeros(1,myfirLen);
 
 % Delay the reference
@@ -99,13 +123,20 @@ figure();
 hold on;
 plot(W,abs(G_true));
 plot(W,abs(G));
-legend("H true", "H")
+plot(W,abs(1./G_true))
+legend("G true", "H", "G inverse")
+title("Filter frequency response")
+xlabel("Radians/sample")
+ylabel("Magnitude")
 hold off;
 
 % Plot the error over time
-% figure();
-% t = (1:length(e));
-% plot(t,e);
+figure();
+t = (1:length(e));
+plot(t,e);
+title("Error over time")
+xlabel("Sample")
+ylabel("Error")
 
 z2_filtered = filter(g, 1, z2);
 % sound(x2, 48000);

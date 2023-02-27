@@ -65,7 +65,7 @@ h_init = zeros(1,length(h_true));
 
 % Filter the input
 [z_filtered,e,h] = lms(eta,z,mu,h_init);
-[z_filtered,e,h] = lms(eta,z,mu,h);
+% [z_filtered,e,h] = lms(eta,z,mu,h);
 
 % Plot the error over time
 figure();
@@ -76,6 +76,8 @@ ylabel("Error")
 
 % Listen to the periodic Signal
 sound(5*e, 8000);
+t = 0:1/8000:4;
+sound(cos(2*pi*781*t),8000);
 
 % Plot the fft of the error to get the tone being played
 nfft = 512;
@@ -114,7 +116,7 @@ hold off
 
 % Filter the input
 [z_filtered,e,h] = lms(eta2,z2,mu,h_init);
-[z_filtered,e,h] = lms(eta2,z2,mu,h);
+% [z_filtered,e,h] = lms(eta2,z2,mu,h);
 
 % sound(5*e, 8000);
 

@@ -34,24 +34,22 @@ ylabel("Error")
 
 % Plot both responses
 figure();
-hold on;
-plot(W,abs(H_true));
-plot(W,abs(H));
-legend("H true", "H")
-title("Filter frequency response")
-xlabel("Radians/sample")
-ylabel("Magnitude")
-hold off;
+hold on
+subplot(2,2,1)
+plot(h_true,"Color","red")
+title("h_ true Impluse Response")
 
-% plot h and h_true on same graph
-figure();
-hold on;
-plot(h);
-plot(h_true);
-legend("h", "h true");
-title("h vs h true")
-xlabel("Radians/sample")
-ylabel("Magnitude")
+subplot(2,2,2)
+plot(h)
+title("h Impluse Response")
+
+subplot(2,2,3)
+plot(W,abs(H_true),"Color","red");
+title("H_ True Frequency Anaylisis")
+
+subplot(2,2,4)
+plot(W,abs(H));
+title("H Frequency Anaylisis")
 hold off
 
 
@@ -96,32 +94,29 @@ signalPeriod = 1/signalFreq;
 
 % Plot both responses
 figure();
-hold on;
-plot(W,abs(H_true));
+hold on
+subplot(2,2,1)
+plot(h_true,"Color","red")
+title("h_ true Impluse Response")
+
+subplot(2,2,2)
+plot(h)
+title("h Impluse Response")
+
+subplot(2,2,3)
+plot(W,abs(H_true),"Color","red");
+title("H_ True Frequency Anaylisis")
+
+subplot(2,2,4)
 plot(W,abs(H));
-legend("H true", "H")
-title("Filter frequency response")
-xlabel("Radians/sample")
-ylabel("Magnitude")
-hold off;
-
-
-% plot h and h_true on same graph
-figure();
-hold on;
-plot(h);
-plot(h_true);
-legend("h", "h true");
-title("h vs h true")
-xlabel("Radians/sample")
-ylabel("Magnitude")
+title("H Frequency Anaylisis")
 hold off
 
 % Filter the input
 [z_filtered,e,h] = lms(eta2,z2,mu,h_init);
 [z_filtered,e,h] = lms(eta2,z2,mu,h);
 
-sound(5*e, 8000);
+% sound(5*e, 8000);
 
 
 %% Experiment 4
@@ -142,7 +137,7 @@ t_delay = zeros(length(t),1);
 t_delay(delay+1:end) = t(1:end-delay);
 
 % Filter the input
-[filtered,e,g] = lms(z,t_delay,mu,h_init);
+[filtered,e,h] = lms(z,t_delay,mu,h_init);
 
 % Plot the error over time
 figure();
@@ -153,31 +148,39 @@ ylabel("Error")
 
 % Get the frequency Repsonse for our adaptive filter
 [G_true, W] = freqz(g_true);
-[G, W] = freqz(g);
+[H, W] = freqz(h);
 
-% Compare the frequency repsonses
+% Plot both responses
+figure();
+hold on
+subplot(2,2,1)
+plot(g_true,"Color","red")
+title("g true Impluse Response")
+
+subplot(2,2,2)
+plot(h)
+title("h Impluse Response")
+
+subplot(2,2,3)
+plot(W,abs(G_true),"Color","red");
+title("G True Frequency Anaylisis")
+
+subplot(2,2,4)
+plot(W,abs(H));
+title("H Frequency Anaylisis")
+hold off
+
+% Compare the inverse response
 figure();
 hold on;
-plot(W,abs(G_true));
-plot(W,abs(G));
 plot(W,abs(1./G_true))
-legend("G true", "H", "G inverse")
-title("Filter frequency response")
+plot(W,abs(H));
+legend("G true Inverse", "H")
+title("Filter frequency Response")
 xlabel("Radians/sample")
 ylabel("Magnitude")
 hold off;
 
-
-% plot h and h_true on same graph
-figure();
-hold on;
-plot(h);
-plot(g_true);
-legend("h", "h true");
-title("h vs h true")
-xlabel("Radians/sample")
-ylabel("Magnitude")
-hold off
 
 z2_filtered = filter(g, 1, z2);
 

@@ -2,6 +2,12 @@
 
 % Import the audio clip
 [y, Fs] = audioread('GeekCubed.wav');
+load('fricatives.mat')
+load('plosives.mat')
+Fs = 8000;
+y_fr = recObj_fr;
+y_pl = recObj_pl;
+y = y_fr;
 
 N = length(y);
 M = 1000;

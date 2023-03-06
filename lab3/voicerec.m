@@ -4,7 +4,7 @@ fs = 8000;
 recObj_fr = audiorecorder();
 recObj_pl = audiorecorder();
 
-recDuration = 1;
+recDuration = 5;
 disp("Pronounce Sashay, Frankfurt.");
 recordblocking(recObj_fr,recDuration);
 recObj_fr = getaudiodata(recObj_fr);

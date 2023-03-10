@@ -1,13 +1,14 @@
 %% Spectrogram
 
 % Import the audio clip
+clear, clc, close all
 [y, Fs] = audioread('GeekCubed.wav');
 load('fricatives.mat')
 load('plosives.mat')
 Fs = 8000;
 y_fr = recObj_fr;
 y_pl = recObj_pl;
-y = y_fr;
+y = y_pl;
 
 N = length(y);
 M = 1000;

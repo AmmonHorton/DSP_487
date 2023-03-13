@@ -4,13 +4,13 @@ fs = 8000;
 recObj_fr = audiorecorder();
 recObj_pl = audiorecorder();
 
-recDuration = 5;
-disp("Pronounce Sashay, Frankfurt.");
+recDuration = 2;
+disp("Scratch and SHHHHH.");
 recordblocking(recObj_fr,recDuration);
 recObj_fr = getaudiodata(recObj_fr);
 save("fricatives.mat","recObj_fr")
 
-disp("Pronounce Plot, Hyperbole");
+disp("CLAP and SNAP");
 recordblocking(recObj_pl,recDuration);
 recObj_pl = getaudiodata(recObj_pl);
 save("plosives.mat","recObj_pl")

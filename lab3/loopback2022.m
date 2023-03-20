@@ -77,14 +77,6 @@ try % VERY IMPORTANT
     time_resp = mean(time_resp);
     disp(time_resp)
 
-
-
-
-
-
-
-
-
     % You want to make sure that you release the system resources after using
     % them and they don't get tied up.
     if ~importdata

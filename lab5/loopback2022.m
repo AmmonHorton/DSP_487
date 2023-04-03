@@ -1,12 +1,10 @@
 clear, clc, close all
 
 % Define Frame size and runtime length
-FrameSize = 1024 ;
-spacing = 0.7;
+FrameSize = 4*1024 ;
 freq = 1000;
 speedOfSound = 343;
 
-max_phase = 2*pi*spacing;
 % runlength = 3; % Seconds
 % numFrames = runlength * Fs / FrameSize;
 numFrames = 200;
@@ -14,12 +12,13 @@ numFrames = 200;
 
 % Define whether to use averaging filter
 alpha = 1;
-importdata = 1;
+importdata = 0;
 
 
 try % VERY IMPORTANT
     if importdata
         offset = 0;
+        spacing = 0.6;
         real_doa = 90;
         Fs = 4000;
 
@@ -39,7 +38,9 @@ try % VERY IMPORTANT
         input1 = y1(:,1).';
         input2 = y2(:,1).';
     else
-        offset = pi + 0.6073 - pi;
+        offset = -115;%pi + 0.6073;
+        spacing = 0.7;
+        max_phase = pi * spacing;
         NumChannels = 2;
         Fs = 4000;
         % This sets up the characteristics of recording
@@ -71,8 +72,8 @@ try % VERY IMPORTANT
 
     DoA = 0;
     loop_count = 0;
-    while loop_count <= numFrames
-    % while true
+    % while loop_count <= numFrames
+    while true
         loop_count = loop_count + 1;
         
         % plot(20*log10(abs(fftshift(fft(input1)))))
@@ -105,15 +106,20 @@ try % VERY IMPORTANT
         complx_num = sum(filt_out1 .* conj(filt_out2));
 
 
-        average_phase = mod(angle(complx_num) + pi - offset, 2*pi) - pi;
-
-        % current_DoA = (average_phase/(4*spacing)) * 180/pi;
-        current_DoA = 180/pi*asin(average_phase/(max_phase));
-
-        % DoA = (1-alpha)*current_DoA + alpha*DoA;
+        average_phase = mod(atan2(imag(complx_num),real(complx_num)) + pi - offset*pi/180, 2*pi) - pi;
+        phs_ratio = (average_phase/max_phase);
+        if abs(phs_ratio) > 1
+            phs_ratio = 1 * sign(phs_ratio);
+        end
+        % current_DoA = (average_phase/(2*spacing)) * 180/pi;
+        current_DoA = 180/pi*asin(phs_ratio);
+        
+%         alpha = 0.8;
+%         DoA = (1-alpha)*current_DoA + alpha*DoA;
 
         disp("Avg Phase: " + string(average_phase));
         disp("DoA: " + string(current_DoA));
+        % disp("DoA: " + string(DoA));
         
         if importdata
             input1 = y1(:,loop_count).';

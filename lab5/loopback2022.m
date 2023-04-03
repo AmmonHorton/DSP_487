@@ -2,11 +2,11 @@ clear, clc, close all
 
 % Define Frame size and runtime length
 FrameSize = 1024 ;
-spacing = 0.4;
+spacing = 0.7;
 freq = 1000;
 speedOfSound = 343;
-dist = spacing * speedOfSound/freq;
 
+max_phase = 2*pi*spacing;
 % runlength = 3; % Seconds
 % numFrames = runlength * Fs / FrameSize;
 numFrames = 200;
@@ -20,10 +20,10 @@ importdata = 1;
 try % VERY IMPORTANT
     if importdata
         offset = 0;
-        real_doa = -90;
+        real_doa = 90;
         Fs = 4000;
 
-        data_size = 1e5;
+        data_size = numFrames * FrameSize;
         t = (0:data_size)*1/Fs;
         
         y1 = cos(t*2*pi*freq);
@@ -39,7 +39,7 @@ try % VERY IMPORTANT
         input1 = y1(:,1).';
         input2 = y2(:,1).';
     else
-        offset = pi + 0.6073;
+        offset = pi + 0.6073 - pi;
         NumChannels = 2;
         Fs = 4000;
         % This sets up the characteristics of recording
@@ -71,8 +71,8 @@ try % VERY IMPORTANT
 
     DoA = 0;
     loop_count = 0;
-    % while loop_count <= numFrames
-    while true
+    while loop_count <= numFrames
+    % while true
         loop_count = loop_count + 1;
         
         % plot(20*log10(abs(fftshift(fft(input1)))))
@@ -103,10 +103,15 @@ try % VERY IMPORTANT
 
         % Sum complex conijugate multiply to average the phase angle
         complx_num = sum(filt_out1 .* conj(filt_out2));
-        average_phase = mod(angle(complx_num) - offset, 2*pi);
-        current_DoA = (average_phase/(4*spacing)) * 180/pi;
-        % current_DoA = 180/pi*asin(average_phase/(2*pi*2*spacing));
+
+
+        average_phase = mod(angle(complx_num) + pi - offset, 2*pi) - pi;
+
+        % current_DoA = (average_phase/(4*spacing)) * 180/pi;
+        current_DoA = 180/pi*asin(average_phase/(max_phase));
+
         % DoA = (1-alpha)*current_DoA + alpha*DoA;
+
         disp("Avg Phase: " + string(average_phase));
         disp("DoA: " + string(current_DoA));
         

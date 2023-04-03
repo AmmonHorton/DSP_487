@@ -1,7 +1,7 @@
 clear, clc, close all
 
 % Define Frame size and runtime length
-FrameSize = 4*1024 ;
+FrameSize = 2*1024 ;
 freq = 1000;
 speedOfSound = 343;
 
@@ -19,8 +19,10 @@ try % VERY IMPORTANT
     if importdata
         offset = 0;
         spacing = 0.6;
+        max_phase = 180 * spacing;
+
         real_doa = 90;
-        Fs = 4000;
+        Fs = 16000;
 
         data_size = numFrames * FrameSize;
         t = (0:data_size)*1/Fs;
@@ -38,11 +40,11 @@ try % VERY IMPORTANT
         input1 = y1(:,1).';
         input2 = y2(:,1).';
     else
-        offset = -115;%pi + 0.6073;
-        spacing = 0.7;
-        max_phase = pi * spacing;
+        offset = -155;%pi + 0.6073;
+        spacing = 0.3;
+        max_phase = 60;
         NumChannels = 2;
-        Fs = 4000;
+        Fs = 16000;
         % This sets up the characteristics of recording
         ar = audioDeviceReader(...
         'NumChannels', NumChannels,...
@@ -55,11 +57,16 @@ try % VERY IMPORTANT
         input2 = input_data(2,:);
     end
 
-    filter_len = FrameSize/4;
-    N = floor(filter_len/2);
-    lpcoef = 2*Fs/(3*Fs);
-    bpfir = lpcoef*sinc((-N:N)*lpcoef);
-    bpfir = bpfir.' .* blackman(length(bpfir));
+    filter_len = FrameSize/10;
+%     N = floor(filter_len/2);
+%     lpcoef = 1/10;
+%     bpfir = lpcoef*sinc((-N:N)*lpcoef);
+%     bpfir = bpfir.' .* blackman(length(bpfir));
+
+    bpfir = firpm(41, [0,0.1,0.15,1], [1,1,0,0]);
+    
+    figure();
+    freqz(bpfir);
 
     [y,zf1_r] = filter(bpfir,1,input1); % Filter the first block
     zf1_i = zf1_r;
@@ -72,6 +79,8 @@ try % VERY IMPORTANT
 
     DoA = 0;
     loop_count = 0;
+    FF = (-0.5:1/FrameSize:0.5 - 1/FrameSize) * Fs;
+
     % while loop_count <= numFrames
     while true
         loop_count = loop_count + 1;
@@ -99,27 +108,42 @@ try % VERY IMPORTANT
         filt_out1 = input1_r + 1j*input1_i;
         filt_out2 = input2_r + 1j*input2_i;
 
+
         % plot(20*log10(abs(fftshift(fft(filt_input1)))))
+
+        fft_out = fft(filt_out2, FrameSize)/FrameSize;
+        fft_plot = 20*log10(fftshift(real(fft_out).^2 + imag(fft_out).^2) + 1e-7);
+        plot(FF, fft_plot);
+        drawnow
 
 
         % Sum complex conijugate multiply to average the phase angle
         complx_num = sum(filt_out1 .* conj(filt_out2));
+        phase = atan2(imag(complx_num),real(complx_num));
+        average_phase = (mod(phase + pi - offset*pi/180, 2*pi) - pi) * 180/pi;
+        % -50, -5, 70
+%         if average_phase < 0
+%             phs_ratio = average_phase / 50;
+%         else
+%             phs_ratio = average_phase / 70;
+%         end
+        phs_ratio = average_phase / max_phase;
 
-
-        average_phase = mod(atan2(imag(complx_num),real(complx_num)) + pi - offset*pi/180, 2*pi) - pi;
-        phs_ratio = (average_phase/max_phase);
         if abs(phs_ratio) > 1
             phs_ratio = 1 * sign(phs_ratio);
         end
+
+
         % current_DoA = (average_phase/(2*spacing)) * 180/pi;
         current_DoA = 180/pi*asin(phs_ratio);
         
-%         alpha = 0.8;
-%         DoA = (1-alpha)*current_DoA + alpha*DoA;
+        alpha = 0.8;
+        DoA = (1-alpha)*current_DoA + alpha*DoA;
 
         disp("Avg Phase: " + string(average_phase));
-        disp("DoA: " + string(current_DoA));
-        % disp("DoA: " + string(DoA));
+        disp("Phase: Ratio " + string(phs_ratio));
+%         disp("DoA: " + string(current_DoA));
+        disp("DoA: " + string(DoA));
         
         if importdata
             input1 = y1(:,loop_count).';

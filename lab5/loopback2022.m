@@ -11,12 +11,12 @@ numFrames = 200;
 
 
 % Define whether to use averaging filter
-alpha = 1;
-importdata = 0;
+alpha = 0.8;
+sim = 0;
 
 
 try % VERY IMPORTANT
-    if importdata
+    if sim
         offset = 0;
         spacing = 0.6;
         max_phase = 180 * spacing;
@@ -84,9 +84,7 @@ try % VERY IMPORTANT
     % while loop_count <= numFrames
     while true
         loop_count = loop_count + 1;
-        
-        % plot(20*log10(abs(fftshift(fft(input1)))))
-
+       
         % Mix down to badeband (0 Hz)
         real_mix = real(mixing_arry);
         imag_mix = imag(mixing_arry);
@@ -97,8 +95,6 @@ try % VERY IMPORTANT
         input2_r = real_mix .* input2;
         input2_i = imag_mix .* input2;
 
-        % plot(20*log10(abs(fftshift(fft(input1_r)))))
-
         % Filter the inputs after mixing
         [input1_r,zf1_r] = filter(bpfir,1,input1_r,zf1_r);
         [input1_i,zf1_i] = filter(bpfir,1,input1_i,zf1_i);
@@ -108,7 +104,8 @@ try % VERY IMPORTANT
         filt_out1 = input1_r + 1j*input1_i;
         filt_out2 = input2_r + 1j*input2_i;
 
-
+        % plot(20*log10(abs(fftshift(fft(input1)))))
+        % plot(20*log10(abs(fftshift(fft(input1_r)))))
         % plot(20*log10(abs(fftshift(fft(filt_input1)))))
 
         fft_out = fft(filt_out2, FrameSize)/FrameSize;
@@ -121,12 +118,6 @@ try % VERY IMPORTANT
         complx_num = sum(filt_out1 .* conj(filt_out2));
         phase = atan2(imag(complx_num),real(complx_num));
         average_phase = (mod(phase + pi - offset*pi/180, 2*pi) - pi) * 180/pi;
-        % -50, -5, 70
-%         if average_phase < 0
-%             phs_ratio = average_phase / 50;
-%         else
-%             phs_ratio = average_phase / 70;
-%         end
         phs_ratio = average_phase / max_phase;
 
         if abs(phs_ratio) > 1
@@ -137,7 +128,6 @@ try % VERY IMPORTANT
         % current_DoA = (average_phase/(2*spacing)) * 180/pi;
         current_DoA = 180/pi*asin(phs_ratio);
         
-        alpha = 0.8;
         DoA = (1-alpha)*current_DoA + alpha*DoA;
 
         disp("Avg Phase: " + string(average_phase));
@@ -145,7 +135,7 @@ try % VERY IMPORTANT
 %         disp("DoA: " + string(current_DoA));
         disp("DoA: " + string(DoA));
         
-        if importdata
+        if sim
             input1 = y1(:,loop_count).';
             input2 = y2(:,loop_count).';
         else
@@ -160,11 +150,11 @@ try % VERY IMPORTANT
 
     % You want to make sure that you release the system resources after using
     % them and they don't get tied up.
-    if ~importdata
+    if ~sim
         release(ar)
     end
 catch err 
-    if ~importdata
+    if ~sim
         release(ar)
     end
     rethrow(err)
